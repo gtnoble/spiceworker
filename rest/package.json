@@ -1,0 +1,21 @@
+{
+  "name": "spiceworker-rest",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "fastify": "^4.28.1"
+  },
+  "author": "Garret Noble",
+  "license": "MIT",
+  "description": "",
+  "devDependencies": {
+    "@tsconfig/node22": "^22.0.0",
+    "@types/node": "^22.5.1",
+    "typescript": "^5.5.4"
+  }
+}
