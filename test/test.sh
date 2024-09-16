@@ -7,6 +7,5 @@ API_HOST=http://localhost:6969/allData
 curl \
   --data-binary "@-" \
   -X POST \
-  -H "Content-Type: application/spice" \
+  -H "Content-Type: application/json" \
   "$API_HOST"
-
