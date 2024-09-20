@@ -1,2 +1,3 @@
 rest/dist
 rest/node_modules
+*.test
