@@ -38,16 +38,18 @@ void vector_push(complex double element, Vector *vector, Arena *arena) {
  */
 char *serialize_vectors(
   const Vectors *vectors, 
-  Arena *arena
+  Arena *arena,
+  Arena *vector_scratch,
+  Arena *element_scratch
 ) {
 
   char *payload;
-  Arena scratch = make_arena(100000000);
   for (size_t ii = 0; ii < vectors->num_vectors; ii++) {
     char *name = vectors->names[ii];
     char *elements = serialize_vector(
       vectors->vectors[ii], 
-      &scratch
+      vector_scratch,
+      element_scratch
     );
 
     if (ii == 0)
@@ -64,8 +66,8 @@ char *serialize_vectors(
         elements
       );
 
-    arena_reset(&scratch);
   }
+  arena_sprintf(arena, "\0");
   
   return payload;
 }
@@ -73,7 +75,7 @@ char *serialize_vectors(
 char *serialize_complex_number(double complex number, Arena *arena) {
   return arena_sprintf(
     arena, 
-    "%e + %ei", 
+    "%e+%ei\0", 
     creal(number), 
     cimag(number)
   );
@@ -81,22 +83,26 @@ char *serialize_complex_number(double complex number, Arena *arena) {
 
 char *serialize_vector(
   const Vector *vector, 
-  Arena *arena
+  Arena *arena,
+  Arena *element_scratch
 ) {
   assert(vector->length > 0);
+
+  size_t scratch_checkpoint = arena_checkpoint(element_scratch);
+
   char *serialized_elements = serialize_complex_number(
     vector->elements[0], arena
   );
 
-  Arena scratch = make_arena(1000000);
   for (size_t i = 1; i < vector->length; i++) {
     arena_sprintf(
       arena, 
       ELEMENT_SEPARATOR "%s", 
-      serialize_complex_number(vector->elements[i], &scratch)
+      serialize_complex_number(vector->elements[i], element_scratch)
     );
-    arena_reset(&scratch);
   }
+  arena_sprintf(arena, "\0");
 
+  arena_restore(scratch_checkpoint, element_scratch);
   return serialized_elements;
 }

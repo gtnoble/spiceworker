@@ -28,12 +28,14 @@ int main(int argc, char *argv[]) {
   assert(vector->elements[1] == 420);
   assert(vector->elements[2] == 666);
   
-  char *serialized_vector = serialize_vector(vector, &arena);
+  Arena element_scratch = make_arena(1000000);
+  
+  char *serialized_vector = serialize_vector(vector, &arena, &element_scratch);
   
   assert(
     strcmp(
       serialized_vector, 
-    "6.900000e01 + 0.000000e00i,4.200000e02 + 0.000000e00i,6.660000e2 + 0.000000e00i"
+    "6.900000e+01+0.000000e+00i,4.200000e+02+0.000000e+00i,6.660000e+02+0.000000e+00i"
     ) == 0
   );
   

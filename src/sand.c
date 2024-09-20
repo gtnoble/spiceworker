@@ -76,7 +76,7 @@ char *arena_sprintf(Arena *arena, const char *format, ...) {
     int num_chars_printed = vsprintf(printed_string, format, argptr);
     assert(num_chars_printed >= 0);
 
-    arena->offset += num_chars_printed + 1;
+    arena->offset += num_chars_printed;
 
     return printed_string;
 }

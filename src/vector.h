@@ -22,7 +22,8 @@ void vector_push(complex double element, Vector *vector, Arena *arena);
 
 char *serialize_vector(
   const Vector *vector, 
-  Arena *arena
+  Arena *arena,
+  Arena *element_scratch
 );
 
 /**
@@ -35,7 +36,9 @@ char *serialize_vector(
  */
 char *serialize_vectors(
   const Vectors *vectors, 
-  Arena *arena
+  Arena *arena,
+  Arena *vector_scratch,
+  Arena *element_scratch
 );
 
 #endif
