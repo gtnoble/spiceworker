@@ -67,18 +67,43 @@ char *arena_duplicate_string(const char *string, Arena *arena) {
     return duplicated_string;
 }
 
-char *arena_sprintf(Arena *arena, const char *format, ...) {
+char *arena_vsprintf(Arena *arena, const char *format, va_list argptr) {
 
     char *printed_string = arena->memory + arena->offset;
 
-    va_list argptr;
-    va_start(argptr, format);
     int num_chars_printed = vsprintf(printed_string, format, argptr);
     assert(num_chars_printed >= 0);
 
     arena->offset += num_chars_printed;
 
     return printed_string;
+    
+}
+
+char *arena_sprintf(Arena *arena, const char *format, ...) {
+
+    va_list argptr;
+    va_start(argptr, format);
+
+    char *string = arena_vsprintf(arena, format, argptr);
+    va_end(argptr);
+    return string;
+}
+
+char *arena_sprintf_null(Arena *arena, const char *format, ...) {
+    va_list argptr;
+    va_start(argptr, format);
+
+    char *string = arena_vsprintf(arena, format, argptr);
+    va_end(argptr);
+    arena_sprint_null(arena);
+    return string;
+}
+
+char *arena_sprint_null(Arena *arena) {
+    char *null_char = ARENA_ALLOCATE(1, char, arena);
+    *null_char = '\0';
+    return null_char;
 }
 
 char *arena_strdup(Arena *arena, const char *string) {

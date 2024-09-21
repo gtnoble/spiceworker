@@ -5,20 +5,30 @@
 #include <stdlib.h>
 #include "sand.h"
 
+#define VECTOR_SEPARATOR "␟"
+#define PLOT_SEPARATOR "␞"
+#define PLOTS_SEPARATOR "␝"
+#define ELEMENT_SEPARATOR ","
 typedef struct {
+  char *name;
   complex double *elements;
   size_t length;
-  size_t max_length;
 } Vector;
 
 typedef struct {
+  char *name;
   Vector **vectors;
-  char **names;
   size_t num_vectors;
-} Vectors;
+} Plot;
 
-Vector *make_vector(size_t max_length, Arena *arena);
-void vector_push(complex double element, Vector *vector, Arena *arena);
+typedef struct {
+  Plot **plots;
+  size_t num_plots;
+} Plots;
+
+Plots *make_plots(size_t num_plots, Arena *arena);
+Plot *make_plot(size_t num_vectors, const char *name, Arena *arena);
+Vector *make_vector(size_t length, const char *name, Arena *arena);
 
 char *serialize_vector(
   const Vector *vector, 
@@ -34,9 +44,17 @@ char *serialize_vector(
  * @param arena Arena to allocate payload memory
  * @return message payload
  */
-char *serialize_vectors(
-  const Vectors *vectors, 
+char *serialize_plot(
+  const Plot *vectors, 
   Arena *arena,
+  Arena *vector_scratch,
+  Arena *element_scratch
+);
+
+char *serialize_plots(
+  const Plots *plots,
+  Arena *arena,
+  Arena *plot_scratch,
   Arena *vector_scratch,
   Arena *element_scratch
 );

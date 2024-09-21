@@ -1,8 +1,0 @@
-#ifndef SPICE_SERIALIZE
-#define SPICE_SERIALIZE
-
-#define FIELD_SEPARATOR "␟"
-#define VECTOR_SEPARATOR "␞"
-#define ELEMENT_SEPARATOR ","
-
-#endif

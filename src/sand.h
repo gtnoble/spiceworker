@@ -24,6 +24,8 @@ void arena_restore(size_t checkpoint, Arena *arena);
 void *arena_allocate_zeros(size_t size, Arena *arena);
 char *arena_duplicate_string(const char *string, Arena *arena);
 char *arena_sprintf(Arena *arena, const char *format, ...);
+char *arena_sprintf_null(Arena *arena, const char *format, ...);
+char *arena_sprint_null(Arena *arena);
 char *arena_strdup(Arena *arena, const char *string);
 
 #endif

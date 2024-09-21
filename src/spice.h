@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "sand.h"
 
+
 void init_spice(void);
-Vectors *run_simulation(char *simulation_card, Arena *arena);
+Plots *run_simulation(const char *simulation_card, Arena *arena);
 #endif
