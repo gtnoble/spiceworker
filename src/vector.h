@@ -4,6 +4,7 @@
 #include <complex.h>
 #include <stdlib.h>
 #include "sand.h"
+#include "cwpack.h"
 
 #define VECTOR_SEPARATOR "␟"
 #define PLOT_SEPARATOR "␞"
@@ -35,6 +36,11 @@ char *serialize_vector(
   Arena *arena,
   Arena *element_scratch
 );
+void serialize_vector_mpack(
+  const Vector *vector, 
+  cw_pack_context *mpack_context
+);
+Vector *deserialize_vector_mpack(cw_unpack_context *mpack_context, Arena *arena);
 
 /**
  * @brief Serializes spice result vectors into a message payload
@@ -50,6 +56,8 @@ char *serialize_plot(
   Arena *vector_scratch,
   Arena *element_scratch
 );
+void serialize_plot_mpack(const Plot *plot, cw_pack_context *mpack_context);
+Plot *deserialize_plot_mpack(cw_unpack_context *mpack_context, Arena *arena);
 
 char *serialize_plots(
   const Plots *plots,
@@ -58,6 +66,11 @@ char *serialize_plots(
   Arena *vector_scratch,
   Arena *element_scratch
 );
+void serialize_plots_mpack(const Plots *plots, cw_pack_context *mpack_context);
+Plots *deserialize_plots_mpack(cw_unpack_context *mpack_context, Arena *arena);
+
+void serialize_complex_number_mpack(double complex number, cw_pack_context *mpack_context);
+double complex deserialize_complex_number_mpack(cw_unpack_context *mpack_context);
 
 #endif
 

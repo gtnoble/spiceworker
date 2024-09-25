@@ -27,5 +27,6 @@ char *arena_sprintf(Arena *arena, const char *format, ...);
 char *arena_sprintf_null(Arena *arena, const char *format, ...);
 char *arena_sprint_null(Arena *arena);
 char *arena_strdup(Arena *arena, const char *string);
+char *arena_strndup(Arena *arena, const char *string, size_t max_length);
 
 #endif

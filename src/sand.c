@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -109,6 +111,15 @@ char *arena_sprint_null(Arena *arena) {
 char *arena_strdup(Arena *arena, const char *string) {
     char *copy = ARENA_ALLOCATE(strlen(string) + 1, char, arena);
     strcpy(copy, string);
+    return copy;
+}
+
+char *arena_strndup(Arena *arena, const char *string, size_t max_length) {
+    size_t length = strnlen(string, max_length);
+
+    char *copy = ARENA_ALLOCATE(length + 1, char, arena);
+    strncpy(copy, string, length);
+    copy[length + 1] = '\0';
     return copy;
 }
 

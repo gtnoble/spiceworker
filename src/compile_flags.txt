@@ -1,5 +1,0 @@
--Wall
--Werror
--Wextra
--Wpedantic
--std=c11

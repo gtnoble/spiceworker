@@ -2,9 +2,16 @@
 #include <assert.h>
 #include <complex.h>
 
+#include "cwpack.h"
+#include "cwpack_utils.h"
 #include "sand.h"
 #include "vector.h"
 
+const char *k_vector_name_key = "name";
+const char *k_vector_elements_key = "elements";
+
+const char *k_plot_name_key = "name";
+const char *k_plot_vectors_key = "plots";
 
 Vector *make_vector(size_t length, const char *name, Arena *arena) {
   Vector *vector = ARENA_ALLOCATE(1, Vector, arena);
@@ -28,6 +35,8 @@ Plots *make_plots(size_t num_plots, Arena *arena) {
   plots->plots = ARENA_ALLOCATE(num_plots, Plot *, arena);
   return plots;
 }
+
+void unpack_and_validate_key(cw_unpack_context *mpack_context, const char *key);
 
 char *serialize_plots(
   const Plots *plots,
@@ -57,6 +66,22 @@ char *serialize_plots(
 
   arena_restore(checkpoint, plot_scratch);
   return payload;
+}
+
+void serialize_plots_mpack(const Plots *plots, cw_pack_context *mpack_context) {
+  cw_pack_array_size(mpack_context, plots->num_plots);
+  for (size_t i = 0; i < plots->num_plots; i++) {
+    serialize_plot_mpack(plots->plots[i], mpack_context);
+  }
+}
+
+Plots *deserialize_plots_mpack(cw_unpack_context *mpack_context, Arena *arena) {
+  size_t num_plots = cw_unpack_next_array_size(mpack_context);
+  Plots *plots = make_plots(num_plots, arena);
+  for (size_t i = 0; i < num_plots; i++) {
+    plots->plots[i] = deserialize_plot_mpack(mpack_context, arena);
+  }
+  return plots;
 }
 
 /**
@@ -97,6 +122,43 @@ char *serialize_plot(
   return payload;
 }
 
+void serialize_plot_mpack(const Plot *plot, cw_pack_context *mpack_context) {
+  cw_pack_map_size(mpack_context, 2);
+  
+  cw_pack_str(mpack_context, k_plot_name_key, strlen(k_plot_name_key));
+  cw_pack_str(mpack_context, plot->name, strlen(plot->name));
+  
+  cw_pack_str(mpack_context, k_plot_vectors_key, strlen(k_plot_vectors_key));
+  cw_pack_array_size(mpack_context, plot->num_vectors);
+  for (size_t i = 0; i < plot->num_vectors; i++) {
+    serialize_vector_mpack(plot->vectors[i], mpack_context);
+  }
+}
+
+Plot *deserialize_plot_mpack(cw_unpack_context *mpack_context, Arena *arena) {
+  unsigned int map_size = cw_unpack_next_map_size(mpack_context);
+  assert(map_size == 2);
+
+  unpack_and_validate_key(mpack_context, k_vector_name_key);
+  size_t name_length = cw_unpack_next_str_lengh(mpack_context);
+  char *name = arena_strndup(
+    arena, 
+    mpack_context->item.as.str.start, 
+    name_length
+  );
+  
+  unpack_and_validate_key(mpack_context, k_plot_vectors_key);
+  size_t num_vectors = cw_unpack_next_array_size(mpack_context);
+  Plot *plot = make_plot(num_vectors, name, arena);
+
+  
+  for (size_t i = 0; i < num_vectors; i++) {
+    plot->vectors[i] = deserialize_vector_mpack(mpack_context, arena);
+  }
+
+  return plot;
+}
+
 char *serialize_complex_number(double complex number, Arena *arena) {
   return arena_sprintf_null(
     arena, 
@@ -104,6 +166,19 @@ char *serialize_complex_number(double complex number, Arena *arena) {
     creal(number), 
     cimag(number)
   );
+}
+
+void serialize_complex_number_mpack(double complex number, cw_pack_context *mpack_context) {
+  cw_pack_array_size(mpack_context, 2);
+  cw_pack_double(mpack_context, creal(number));
+  cw_pack_double(mpack_context, cimag(number));
+}
+
+double complex deserialize_complex_number_mpack(cw_unpack_context *mpack_context) {
+  assert(cw_unpack_next_array_size(mpack_context) == 2);
+  double real = cw_unpack_next_double(mpack_context);
+  double imag = cw_unpack_next_double(mpack_context);
+  return real + imag * I;
 }
 
 char *serialize_vector(
@@ -127,4 +202,46 @@ char *serialize_vector(
 
   arena_restore(scratch_checkpoint, element_scratch);
   return serialized_vector;
+}
+
+Vector *deserialize_vector_mpack(cw_unpack_context *mpack_context, Arena *arena) {
+  size_t vector_map_size = cw_unpack_next_map_size(mpack_context);
+  assert(vector_map_size == 2);
+
+  unpack_and_validate_key(mpack_context, k_vector_name_key);
+  size_t name_length = cw_unpack_next_str_lengh(mpack_context);
+  char *name = arena_strndup(
+    arena, 
+    mpack_context->item.as.str.start, 
+    name_length
+  );
+
+  unpack_and_validate_key(mpack_context, k_vector_elements_key);
+  size_t num_elements = cw_unpack_next_array_size(mpack_context);
+  Vector *vector = make_vector(num_elements, name, arena);
+  
+  for (size_t i = 0; i < num_elements; i++) {
+    vector->elements[i] = deserialize_complex_number_mpack(mpack_context);
+  }
+  
+  return vector;
+}
+
+void serialize_vector_mpack(const Vector *vector, cw_pack_context *mpack_context) {
+  cw_pack_map_size(mpack_context, 2);
+
+  cw_pack_str(mpack_context, k_vector_name_key,  strlen(k_vector_name_key));
+  cw_pack_str(mpack_context, vector->name, strlen(vector->name));
+
+  cw_pack_str(mpack_context, k_vector_elements_key, strlen(k_vector_elements_key));
+  cw_pack_array_size(mpack_context, vector->length);
+  for (size_t i = 0; i < vector->length; i++) {
+    serialize_complex_number_mpack(vector->elements[i], mpack_context);
+  }
+}
+
+void unpack_and_validate_key(cw_unpack_context *mpack_context, const char *key) {
+  size_t key_length = cw_unpack_next_str_lengh(mpack_context);
+  assert(key_length == strlen(key));
+  assert(strncmp(mpack_context->item.as.str.start, key, key_length) == 0);
 }

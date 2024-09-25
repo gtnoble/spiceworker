@@ -1,0 +1,3 @@
+[submodule "ext/CWPack"]
+	path = ext/CWPack
+	url = git@github.com:clwi/CWPack.git

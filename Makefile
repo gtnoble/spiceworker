@@ -1,11 +1,17 @@
 TEST_DIR = test
 SOURCE_DIR = src
-CFLAGS = -g
+CFLAGS = $(shell cat compile_flags.txt | tr '\n' ' ')
+
+CWPACK_DIR = ext/CWPack
+VECTOR_SRC = $(SOURCE_DIR)/vector.c $(CWPACK_DIR)/src/cwpack.c $(CWPACK_DIR)/goodies/utils/cwpack_utils.c
 
 test/%.test: $(SOURCE_DIR)/sand.c $(SOURCE_DIR)/%.c $(SOURCE_DIR)/%.test.c
 	cc $(CFLAGS) -o $@ $^
 
-test/spice.test: $(SOURCE_DIR)/spice.c $(SOURCE_DIR)/sand.c $(SOURCE_DIR)/vector.c $(SOURCE_DIR)/spice.test.c
+test/vector.test: $(VECTOR_SRC) $(SOURCE_DIR)/sand.c $(SOURCE_DIR)/vector.test.c
+	cc $(CFLAGS) -o $@ $^ -lm
+
+test/spice.test: $(SOURCE_DIR)/spice.c $(SOURCE_DIR)/sand.c $(VECTOR_SRC) $(SOURCE_DIR)/spice.test.c
 	cc $(CFLAGS) -o $@ $^ -lngspice
 
 

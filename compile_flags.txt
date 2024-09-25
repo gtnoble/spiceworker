@@ -1,0 +1,8 @@
+-Wall
+-Werror
+-Wextra
+-Wpedantic
+-Iext/CWPack/src
+-Iext/CWPack/goodies/utils
+-std=c11
+-g
