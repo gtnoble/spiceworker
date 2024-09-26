@@ -1,24 +1,15 @@
-#include "sand.h"
 #include <gsl/gsl_rng.h>
 #include <math.h>
 #include <assert.h>
 #include <stdlib.h>
 
-typedef struct {
-  size_t length;
-  double *elements;
-} RealVector;
+#include "sand.h"
+#include "pso.h"
 
-typedef struct {
-  size_t num_vectors;
-  RealVector **vectors;
-} RealVectors;
-
-double square(double x) {
+const double k_pi = 3.1415926535897932384626433;
+static inline double square(double x) {
   return x * x;
 }
-
-typedef void ObjectiveFunction(const RealVectors *positions, RealVector *resulting_energies);
 
 RealVector *make_real_vector(size_t length, Arena *arena) {
   RealVector *vector = ARENA_ALLOCATE(1, RealVector, arena);
@@ -27,10 +18,17 @@ RealVector *make_real_vector(size_t length, Arena *arena) {
   return vector;
 }
 
+RealVectors *make_real_vectors(size_t num_vectors, Arena *arena) {
+  RealVectors *vectors = ARENA_ALLOCATE(1, RealVectors, arena);
+  vectors->vectors = ARENA_ALLOCATE(num_vectors, RealVector *, arena);
+  vectors->num_vectors = num_vectors;
+  return vectors;
+}
+
 double sample_normal_distribution_1d(double mean, double standard_deviation, gsl_rng *rng) {
   return mean + 
   (
-    cos(2 * PI * gsl_rng_uniform(rng)) *
+    cos(2 * k_pi * gsl_rng_uniform(rng)) *
     sqrt(-2 * log(gsl_rng_uniform(rng))) *
     standard_deviation
   );
@@ -84,9 +82,12 @@ RealVector *vector_scale(double scalar, const RealVector *vector, Arena *arena) 
   for (size_t i = 0; i < vector->length; i++) {
     result->elements[i] = vector->elements[i] * scalar;
   }
+  return result;
 }
 
 RealVector *get_best_position(RealVectors *particle_positions, RealVector *particle_energies) {
+  assert(particle_positions->num_vectors == particle_energies->length);
+
   RealVector *best_position_so_far = particle_positions->vectors[0];
   double best_position_energy = particle_energies->elements[0];
 
@@ -117,6 +118,8 @@ void update_position(
   gsl_rng *rng,
   Arena *scratch
 ) {
+  assert(particle_position->length == global_best_position->length);
+
   size_t checkpoint = arena_checkpoint(scratch);
   RealVector *mean = vector_scale(
     .5, 
@@ -155,14 +158,20 @@ RealVector *particle_swarm_optimize(
   RealVector *best_position;
 
   assert(positions->num_vectors > 0);
-  
+
+  assert(positions->num_vectors == energies->length);
   objective_function(positions, energies);
+  assert(positions->num_vectors == energies->length);
+
   for (size_t i = 0; i < max_iterations; i++) {
     best_position = get_best_position(positions, energies);
     for (size_t j = 0; j < positions->num_vectors; j++) {
       update_position(positions->vectors[j], best_position, rng, arena);
     }
+
+    assert(positions->num_vectors == energies->length);
     objective_function(positions, energies);
+    assert(positions->num_vectors == energies->length);
   }
   return best_position;
   
