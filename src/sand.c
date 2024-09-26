@@ -53,6 +53,13 @@ void *arena_allocate_aligned(size_t size, size_t alignment, Arena *arena) {
     return arena_allocate(size, arena);
 }
 
+void* arena_push(void *object, size_t size, size_t alignment, Arena *arena) {
+    void *allocation = arena_allocate_aligned(size, alignment, arena);
+    memcpy(allocation, object, size);
+    return allocation;
+}
+
+
 void *arena_allocate_zeros(size_t size, Arena *arena) {
     char *allocated_memory = &arena->memory[arena->offset];
     for (size_t i = 0; i < size; i++) {

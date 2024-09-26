@@ -12,7 +12,7 @@ test/vector.test: $(VECTOR_SRC) $(SOURCE_DIR)/sand.c $(SOURCE_DIR)/vector.test.c
 	cc $(CFLAGS) -o $@ $^ -lm
 
 test/spice.test: $(SOURCE_DIR)/spice.c $(SOURCE_DIR)/sand.c $(VECTOR_SRC) $(SOURCE_DIR)/spice.test.c
-	cc $(CFLAGS) -o $@ $^ -lngspice
+	cc $(CFLAGS) -o $@ $^ -lngspice -lm
 	
 test/pso.test: ${SOURCE_DIR}/pso.test.c $(SOURCE_DIR)/pso.c $(SOURCE_DIR)/random.c $(SOURCE_DIR)/sand.c
 	cc $(CFLAGS) -o $@ $^ -lgsl -lm

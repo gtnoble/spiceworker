@@ -18,23 +18,10 @@ int main(int argc, char *argv[]) {
   (void) argv;
 
   Arena arena = make_arena(100000000);
-  Arena plot_scratch = make_arena(100000000);
-  Arena vector_scratch = make_arena(100000000);
-  Arena element_scratch = make_arena(100000000);
   
   init_spice();
   Plots *result = run_simulation(spice_card, &arena);
   assert(result);
-
-  char *serialized_result = serialize_plots(
-    result, 
-    &arena, 
-    &plot_scratch, 
-    &vector_scratch, 
-    &element_scratch
-  );
-  assert(serialized_result);
-
   return 0;
 }
 

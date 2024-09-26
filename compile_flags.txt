@@ -4,5 +4,6 @@
 -Wpedantic
 -Iext/CWPack/src
 -Iext/CWPack/goodies/utils
--std=c11
+-std=c2x
 -g
+-pg
