@@ -1,3 +1,6 @@
+#ifndef SPICE_PSO
+#define SPICE_PSO
+
 #include <gsl/gsl_rng.h>
 #include <stdlib.h>
 
@@ -28,3 +31,5 @@ RealVector *particle_swarm_optimize(
 
 RealVector *make_real_vector(size_t length, Arena *arena);
 RealVectors *make_real_vectors(size_t num_vectors, Arena *arena);
+
+#endif

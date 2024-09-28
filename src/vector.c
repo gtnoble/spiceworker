@@ -36,6 +36,22 @@ Plots *make_plots(size_t num_plots, Arena *arena) {
   return plots;
 }
 
+Plot *lookup_plot(const char *name, const Plots *plots) {
+  for (size_t i = 0; i < plots->num_plots; i++) {
+    if (strcmp(plots->plots[i]->name, name) == 0)
+      return plots->plots[i];
+  }
+  return NULL;
+}
+
+Vector *lookup_vector(const char *name, const Plot *plot) {
+  for (size_t i = 0; i < plot->num_vectors; i++) {
+    if (strcmp(plot->vectors[i]->name, name) == 0)
+      return plot->vectors[i];
+  }
+  return NULL;
+}
+
 void unpack_and_validate_key(cw_unpack_context *mpack_context, const char *key);
 
 char *serialize_plots(

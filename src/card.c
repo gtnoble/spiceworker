@@ -2,15 +2,10 @@
 #include <string.h>
 
 #include "sand.h"
-#include "vector.h"
-#include "string.h"
+#include "pso.h"
+#include "card.h"
 
 const char *k_substitution_key = "%s";
-
-typedef struct {
-  char **components;
-  size_t num_components;
-} ParsedTemplate;
 
 ParsedTemplate *parse_template(const char *template, Arena *arena) {
   char *tokenized_template = arena_strdup(arena, template);
@@ -44,16 +39,15 @@ ParsedTemplate *parse_template(const char *template, Arena *arena) {
   return parsed_template;
 }
 
-char *substitute_template(ParsedTemplate *template, Vector *vector, Arena *arena) {
+char *substitute_template(ParsedTemplate *template, RealVector *vector, Arena *arena) {
 
-  char *substituted;
+  char *substituted = arena_sprintf(arena, "");
   for (size_t i = 0; i < template->num_components; i++) {
-    char *next_component = template->components[i];
-    if (i == 0) {
-      substituted = arena_sprintf(arena, "%s%e", next_component, arena);
+    arena_sprintf(arena, "%s", template->components[i]);
+    if (i < vector->length) {
+      arena_sprintf(arena, "%e", vector->elements[i]);
     }
-
   }
-  
-
+  arena_sprintf_null(arena, "");
+  return substituted;
 }

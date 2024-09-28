@@ -49,7 +49,8 @@ void *arena_allocate(size_t size, Arena *arena) {
 }
 
 void *arena_allocate_aligned(size_t size, size_t alignment, Arena *arena) {
-    arena->offset += alignment - ((arena->offset % alignment) % alignment);
+    size_t padding = (alignment - (arena->offset % alignment)) % alignment;
+    arena->offset += padding;
     return arena_allocate(size, arena);
 }
 

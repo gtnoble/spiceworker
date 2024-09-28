@@ -9,7 +9,7 @@
     (type *) arena_allocate_aligned(length * sizeof(type), alignof(type), arena)
 
 #define ARENA_PUSH(object, arena) \
-    (typeof(object) *) arena_push(object, sizeof(object), alignof(typeof(object)), arena)
+    (typeof(object) *) arena_push(&object, sizeof(object), alignof(typeof(object)), arena)
 
 typedef struct {
     char *memory;

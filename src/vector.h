@@ -31,6 +31,9 @@ Plots *make_plots(size_t num_plots, Arena *arena);
 Plot *make_plot(size_t num_vectors, const char *name, Arena *arena);
 Vector *make_vector(size_t length, const char *name, Arena *arena);
 
+Plot *lookup_plot(const char *name, const Plots *plots);
+Vector *lookup_vector(const char *name, const Plot *plot);
+
 char *serialize_vector(
   const Vector *vector, 
   Arena *arena,
